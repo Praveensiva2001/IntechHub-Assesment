@@ -1,0 +1,78 @@
+﻿@model IEnumerable<dynamic>
+
+
+@{
+    var today = DateTime.Today;
+    var attendanceDate = ViewData["SelectedDate"] as DateTime? ?? today;
+}
+
+
+<h2>Employee Attendance</h2>
+
+<!-- Date Picker to filter attendance -->
+<form method="get" action="/Attendance/Index">
+    <input type="date" name="selectedDate"
+           value="@attendanceDate.ToString("yyyy-MM-dd")"
+           max="@today.ToString("yyyy-MM-dd")" />
+    <button type="submit">Filter</button>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Employee Name</th>
+            <th>Department</th>
+            <th>Date</th>
+            <th>Check-In</th>
+            <th>Check-Out</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Department</td>
+                <td>@attendanceDate.ToString("yyyy-MM-dd")</td>
+                <td>@(item.Attendance?.CheckInTime?.ToString("HH:mm") ?? "Not Checked-In")</td>
+                <td>@(item.Attendance?.CheckOutTime?.ToString("HH:mm") ?? "Not Checked-Out")</td>
+                <td>
+                    @if (attendanceDate < today) // This Checks Condition for past dates and if any one column of checkin or checkout is not having values then it will be absent
+                    {
+                        if (item.Attendance?.CheckInTime == null || item.Attendance?.CheckOutTime == null)
+                        {
+                            <span>Absent</span>
+                        }
+                        else
+                        {
+                            <span>Present</span>
+                        }
+                    }
+                    else // This Checks Condition for Present dates
+                    {
+                        if (item.Attendance?.CheckInTime == null && item.Attendance?.CheckOutTime == null)
+                        {
+                            <form method="post" action="/Attendance/CheckIn">
+                                <input type="hidden" name="employeeId" value="@item.EmployeeId" />
+                                <button type="submit">Check In</button>
+                            </form>
+                        }
+                        else if (item.Attendance?.CheckInTime != null && item.Attendance?.CheckOutTime == null)
+                        {
+                            <form method="post" action="/Attendance/CheckOut">
+                                <input type="hidden" name="employeeId" value="@item.EmployeeId" />
+                                <button type="submit">Check Out</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span>@(item.Attendance?.CheckInTime != null && item.Attendance?.CheckOutTime != null ? "Present" : "Absent")</span>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody> 
+</table>
+<input type="button" value="View Employees" onclick="location.href='@Url.Action("Index", "Employee")'" />

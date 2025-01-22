@@ -1,0 +1,37 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+@model IEnumerable<EmployeeAttendanceManagementSystem.Models.Employee>
+
+<h2>Employee List</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var employee in Model)
+        {
+            <tr>
+                <td>@employee.Name</td>
+                <td>@employee.Email</td>
+                <td>@employee.Department</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Employee", new { id = employee.EmployeeId })">Edit</a> |
+                    <a href="@Url.Action("Delete", "Employee", new { id = employee.EmployeeId })">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="@Url.Action("Create", "Employee")">Add New Employee</a>
